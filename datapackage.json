@@ -1,0 +1,137 @@
+{
+  "name": "liquor-law-arrests",
+  "datapackage_version": "1.0-beta.18",
+  "title": "Liquor Law Arrests",
+  "description": "Liquor Law Arrests reports the number and rate (per 10,000) of arrests due to state or local liquor law violations, per age group.",
+  "version": "1.0",
+  "licenses": [{
+    "url": "http://opendatacommons.org/licenses/pddl/",
+    "name": "Open Data Commons Public Domain",
+    "version": "1.0",
+    "id": "odc-pddl"
+  }],
+  "sources": [{
+    "name": "ctdespp",
+    "web": ""
+  }],
+  "author":[{
+    "name": "Jenna Daly",
+    "email": "jdaly@ctdata.org",
+    "web": "http://ctdata.org"
+  }],
+  "contributor": [],
+  "resources": [{
+    "path": "data/data.csv",
+    "format": "csv",
+    "schema": {
+      "fields": [{
+          "name": "Town",
+          "type": "string",
+          "dimension": false
+        }, {
+          "name": "FIPS",
+          "type": "string",
+          "dimension": false
+        }, {
+          "name": "Year",
+          "type": "string",
+          "dimension": false
+        }, {
+          "name": "Measure Type",
+          "type": "string",
+          "dimension": true
+        }, {
+          "name": "Variable",
+          "type": "string",
+          "dimension": true
+        }, {
+          "name": "Value",
+          "type": "number",
+          "dimension": false
+        }]
+      }
+    }
+  ],
+  "last_modified": "09/12/2017",
+  "ckan_extras": {
+    "full_description": {
+      "ckan_name": "Full Description",
+      "value": "Liquor Law Arrests reports the number and rate (per 10,000) of arrests due to state or local liquor law violations, per age group.",
+      "type": "string"
+    },
+    "suppression": {
+      "ckan_name": "Suppression",
+      "value": "",
+      "type": "string"
+    },
+    "technical_notes": {
+      "ckan_name": "Technical Notes",
+      "value": "Technical notes for advanced users",
+      "type": "string"
+    },
+    "socrata": {
+      "ckan_name": "Socrata",
+      "value": "True",
+      "type": "string"
+    },
+    "socrata_url": {
+      "ckan_name": "Socrata Dataset URL",
+      "value": "https://data.ct.gov/Public-Safety/Uniform-Crime-Reporting-System-Arrests-2015/r6vz-twt4",
+      "type": "string"
+    },"0socrata_dataset_name": {
+      "ckan_name": "Socrata Dataset Name",
+      "value": "Uniform Crime Reporting System Arrests",
+      "type": "string"
+    }, 
+    "domain": {
+      "ckan_name": "Domain",
+      "value": "Health",
+      "type": "string"
+    },
+    "subdomain": {
+      "ckan_name": "Subdomain",
+      "value": "Substance Abuse",
+      "type": "string"
+    },
+    "geography": {
+      "ckan_name": "Geography",
+      "value": "Town",
+      "type": "string",
+      "constraints": {"enum": ["Town", "County", "Town/County", "District", "Other"]}
+    },
+    "frequency": {
+      "ckan_name": "Frequency",
+      "value": "Annual",
+      "type": "string"
+    },
+    "years_in_catalog": {
+      "ckan_name": "Years in Catalog",
+      "value": [],
+      "type": "array"
+    },
+    "latest_year": {
+      "ckan_name": "Latest Year Available",
+      "value": "2015",
+      "type": "string"
+    },
+    "disabled_views": {
+      "ckan_name": "Disabled Views",
+      "value": [],
+      "type": "array",
+      "constraints": {"enum": ["map", "table", "bar", "line"]}
+    },
+    "units": {
+      "ckan_name": "Units",
+      "value": {
+        "Number": "",
+        "Percent": "%"
+      }
+    },
+    "default": {}
+  },
+  "spot_checks": [],
+  "dimension_groups": [
+    {"Measure Type": []},
+    {"Variable": []}
+  ]
+}
