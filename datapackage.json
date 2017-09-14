@@ -21,7 +21,7 @@
   }],
   "contributor": [],
   "resources": [{
-    "path": "data/data.csv",
+    "path": "data/liquor-law-arrests_2015.csv",
     "format": "csv",
     "schema": {
       "fields": [{
@@ -37,13 +37,38 @@
           "type": "string",
           "dimension": false
         }, {
+          "name": "Age Range", 
+          "type": "string", 
+          "dimension": true,
+          "constraints": {
+			      "enum": [
+		          "Total",
+		          "Over 9 years",
+		          "10 to 20 years", 	
+		          "18 to 24 years",
+		          "Over 20 years"
+		        ]
+			    }
+        }, {
           "name": "Measure Type",
           "type": "string",
-          "dimension": true
+          "dimension": true,
+          "constraints": {
+			      "enum": [
+		          "Number",
+		          "Rate (per 10,000)"
+		        ]
+			    }
         }, {
           "name": "Variable",
           "type": "string",
-          "dimension": true
+          "dimension": true,
+          "constraints": {
+			      "enum": [
+			        "Liquor Law Arrests", 
+			        "Margins of Error"
+			      ]
+			    }
         }, {
           "name": "Value",
           "type": "number",
@@ -56,7 +81,7 @@
   "ckan_extras": {
     "full_description": {
       "ckan_name": "Full Description",
-      "value": "Liquor Law Arrests reports the number and rate (per 10,000) of arrests due to state or local liquor law violations, per age group.",
+      "value": "The Connecticut Department of Emergency Services and Public Protection (prior to 2011 called the Department of Public Safety) collects and reports crime data in the Uniform Crime Report (UCR) program. This data reports the number of arrests, and is collected and reported to the state by each agency monthly. The DESPP reports this collected data annually. CTData has aggregated agency data in two locations to create a uniform level of reporting. For the town of Putnam, the Municipal Police Department and Connecticut State Police agency data has been aggregated. For Groton, the data covering the Town of Groton, the City of Groton, and Groton Long Point have been aggregated.  Liquor Law Arrests reports the number and rate (per 10,000) of arrests due to state or local liquor law violations, per age group (except drunkenness and driving under the influence). The denominators for the rates are derived from 5-Year ACS population figures. As such, the rate of arrests is given with a Margin of Error calculated from the Margin of Error present in the population data.",
       "type": "string"
     },
     "suppression": {
@@ -66,7 +91,7 @@
     },
     "technical_notes": {
       "ckan_name": "Technical Notes",
-      "value": "Technical notes for advanced users",
+      "value": "",
       "type": "string"
     },
     "socrata": {
@@ -78,7 +103,8 @@
       "ckan_name": "Socrata Dataset URL",
       "value": "https://data.ct.gov/Public-Safety/Uniform-Crime-Reporting-System-Arrests-2015/r6vz-twt4",
       "type": "string"
-    },"0socrata_dataset_name": {
+    },
+    "socrata_dataset_name": {
       "ckan_name": "Socrata Dataset Name",
       "value": "Uniform Crime Reporting System Arrests",
       "type": "string"
@@ -93,6 +119,16 @@
       "value": "Substance Abuse",
       "type": "string"
     },
+    "numerator": {
+      "ckan_name": "Numerator",
+      "value": "Number of liquor law offenses per indicator age group.",
+      "type": "string"
+    },
+    "denominator": {
+      "ckan_name": "Denominator",
+      "value": "Population for indicator age group, reported by the US Census.",
+      "type": "string"
+    },  
     "geography": {
       "ckan_name": "Geography",
       "value": "Town",
@@ -106,7 +142,7 @@
     },
     "years_in_catalog": {
       "ckan_name": "Years in Catalog",
-      "value": [],
+      "value": ["2010", "2011", "2012", "2013", "2014", "2015"],
       "type": "array"
     },
     "latest_year": {
@@ -127,11 +163,140 @@
         "Percent": "%"
       }
     },
-    "default": {}
+    "expected_number_of_geographies": {
+		  "ckan_name": "Expected Number of Unique Geographies",
+		  "value": 170,
+		  "type": "string"
+		},  
+    "default": {      
+      "ckan_name": "Default",
+			"value": {
+			  "Town": "Connecticut", 
+		 		"Year": ["2015"],
+				"Measure Type": "Number",
+		 		"Variable": "Liquor Law Arrests", 
+		 		"Age Range": "Total"
+			},
+		  	"type": "object"
+    }  
   },
-  "spot_checks": [],
-  "dimension_groups": [
-    {"Measure Type": []},
-    {"Variable": []}
+  "spot_checks": [
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Hartford",
+        "Age Range": "Total",
+        "Year": "2010",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Number" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 26
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Groton",
+        "Age Range": "Over 9 years",
+        "Year": "2011",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Rate (per 10,000)" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": 2.85
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Putnam",
+        "Age Range": "10 to 20 years",
+        "Year": "2012",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Number" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 19
+      } 
+    },  
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Bethel",
+        "Age Range": "10 to 20 years",
+        "Year": "2012",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Rate (per 10,000)" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "float",
+        "value": 3.68
+      } 
+    },
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Tolland",
+        "Age Range": "Over 20 years",
+        "Year": "2013",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Rate (per 10,000)" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 0
+      } 
+    },   
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Colebrook",
+        "Age Range": "Over 20 years",
+        "Year": "2014",
+        "Variable": "Margins of Error",
+        "Measure Type": "Rate (per 10,000)" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 0
+      } 
+    }, 
+    {
+      "type": "$lookup",
+      "filter": {
+        "Town": "Connecticut",
+        "Age Range": "18 to 24 years",
+        "Year": "2015",
+        "Variable": "Liquor Law Arrests",
+        "Measure Type": "Number" 
+      },
+      "expected": {
+        "type": "$match",
+        "number type": "int",
+        "value": 87
+      } 
+    }   
+  ],
+  "dimension_groups" : [
+    {
+      "Measure Type": ["Number"],
+      "Variable": ["Liquor Law Arrests"], 
+      "Age Range": ["Over 9 years", "10 to 20 years", "Over 20 years", "18 to 24 years", "Total"]
+    },
+    {
+      "Measure Type": ["Rate (per 10,000)"],
+      "Variable": ["Liquor Law Arrests", "Margins of Error"], 
+      "Age Range": ["Over 9 years", "10 to 20 years", "Over 20 years", "18 to 24 years", "Total"]
+    }
   ]
 }
