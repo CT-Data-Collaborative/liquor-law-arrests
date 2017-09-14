@@ -1,7 +1,8 @@
 Liquor Law Arrests
 
-[![Build Status](https://travis-ci.org/CT-Data-Collaborative/liquor-law-arrests.svg?branch=master)](https://travis-ci.org/CT-Data-Collaborative/liquor-law-arrests)
 Liquor Law Arrests reports the number and rate (per 10,000) of arrests due to state or local liquor law violations, per age group.
+
+Data Source: <https://data.ct.gov/Public-Safety/Uniform-Crime-Reporting-System-Arrests-2015/r6vz-twt4>
 
 ## License MIT
 
