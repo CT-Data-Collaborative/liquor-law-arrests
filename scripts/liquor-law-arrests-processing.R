@@ -46,6 +46,7 @@ years <- c("2010", "2011", "2012", "2013") #Years where indicators are counties 
 indicators <- c("Hartford", "Windham", "Tolland", "New London", "New Haven", "Litchfield", "Fairfield")
 ll_arrests <- ll_arrests[!(ll_arrests$Year %in% years & ll_arrests$Indicator %in% indicators),]
 
+#Fix Indicator names
 ll_arrests$Indicator[ll_arrests$Indicator == "CT"] <- "Connecticut"
 ll_arrests$Indicator <- gsub(" CSP", "", ll_arrests$Indicator)
 ll_arrests$Indicator <- gsub(" PD", "", ll_arrests$Indicator)
@@ -66,18 +67,20 @@ fips <- as.data.frame(fips)
 
 ll_arrests_fips <- merge(ll_arrests, fips, by = "Town", all.y=T)
 
+#Aggregate towns
 ll_arrests_fips <- ll_arrests_fips %>% 
   group_by(Year, Age, Town, Crime) %>% 
   mutate(Value = sum(Value))
 
 ll_arrests_fips <- unique(ll_arrests_fips)
 
-# relabel age ranges, and aggregate them as needed
+# Assign age group flags (one age may belong to mutliple groups)
 ll_arrests_fips$`Over 9 years flag` <- "TRUE"
 ll_arrests_fips$`10 to 20 years flag` <- "FALSE"
 ll_arrests_fips$`Over 20 years flag` <- "FALSE"
 ll_arrests_fips$`18 to 24 years flag` <- "FALSE" 
 
+#Assign flags based on Age column
 ll_arrests_fips$`Over 9 years flag`[ll_arrests_fips$`Age` == "<10"] <- "FALSE"
 
 x1020 <- c("10-12", "13-14", "15", "16", "17", "18", "19", "20")
@@ -90,6 +93,7 @@ ll_arrests_fips$`Over 20 years flag`[ll_arrests_fips$`Age` %in% over20] <- "TRUE
 x1824 <- c("18", '19', "20", "21", "22", "23", "24")
 ll_arrests_fips$`18 to 24 years flag`[ll_arrests_fips$`Age` %in% x1824] <- "TRUE"
 
+#Aggregate age groups based on flag
 test <- ll_arrests_fips %>% 
   group_by(Town, Year, `Over 9 years flag`) %>% 
   mutate(`Over 9 years` = ifelse(`Over 9 years flag` == "TRUE", sum(Value), 0))
@@ -106,10 +110,12 @@ test <- test %>%
   group_by(Town, Year, `18 to 24 years flag`) %>% 
   mutate(`18 to 24 years` = ifelse(`18 to 24 years flag` == "TRUE", sum(Value), 0))
 
+#Create total column
 test <- test %>% 
   group_by(Town, Year) %>% 
   mutate(Total = sum(Value))
 
+#Complete df with all totals
 ll_arrests_totals <- test %>% 
   group_by(Town, Year, FIPS) %>% 
   summarise(`Over 9 years` = max(`Over 9 years`), 
@@ -119,7 +125,7 @@ ll_arrests_totals <- test %>%
          `Total` = max(Total))
             
 ##########################################################################################################
-#Create CT values for 2015
+#Create CT values for 2015 (2015 file does not have CT level values)
 CT_2015 <- ll_arrests_fips[ll_arrests_fips$Year == "2015",]
 
 CT_2015 <- as.data.frame(CT_2015)
@@ -128,12 +134,13 @@ total_2015 <- CT_2015 %>%
   group_by(Age) %>% 
   summarise(Value = sum(Value))
 
-# relabel age ranges, and aggregate them as needed
+# Assign age group flags (one age may belong to mutliple groups)
 total_2015$`Over 9 years flag` <- "TRUE"
 total_2015$`10 to 20 years flag` <- "FALSE"
 total_2015$`Over 20 years flag` <- "FALSE"
 total_2015$`18 to 24 years flag` <- "FALSE" 
 
+#Assign flags based on Age column
 total_2015$`Over 9 years flag`[total_2015$`Age` == "<10"] <- "FALSE"
 
 x1020 <- c("10-12", "13-14", "15", "16", "17", "18", "19", "20")
@@ -146,6 +153,7 @@ total_2015$`Over 20 years flag`[total_2015$`Age` %in% over20] <- "TRUE"
 x1824 <- c("18", '19', "20", "21", "22", "23", "24")
 total_2015$`18 to 24 years flag`[total_2015$`Age` %in% x1824] <- "TRUE"
 
+#Aggregate age groups based on flag
 total_2015_test <- total_2015 %>% 
   group_by(`Over 9 years flag`) %>% 
   mutate(`Over 9 years` = ifelse(`Over 9 years flag` == "TRUE", sum(Value), 0))
@@ -164,11 +172,13 @@ total_2015_test <- total_2015_test %>%
 
 total_2015_test <- as.data.frame(total_2015_test)
 
+#Create total column
 total_2015_test <- total_2015_test %>% 
   mutate(Total = sum(Value))
 
 total_2015_test <- as.data.frame(total_2015_test)
 
+#CT df with all totals
 total_2015_test <- total_2015_test %>% 
   summarise(`Over 9 years` = max(`Over 9 years`), 
             `10 to 20 years` = max(`10 to 20 years`), 
@@ -176,12 +186,14 @@ total_2015_test <- total_2015_test %>%
             `18 to 24 years` = max(`18 to 24 years`), 
             `Total` = max(Total))
 
+#Create columns
 total_2015_test$Town <- "Connecticut"
 total_2015_test$FIPS <- "09"
 total_2015_test$Year <- 2015
 
 ll_arrests_totals <- as.data.frame(ll_arrests_totals)
 
+#Merge CT 2015 with rest of data
 ll_arrests_totals <- rbind(ll_arrests_totals, total_2015_test)
 
 #convert wide to long
@@ -265,9 +277,4 @@ write.table(
   row.names = F,
   na = "-9999"
 )
-
-#######################################################################################################
-
-
-
 
