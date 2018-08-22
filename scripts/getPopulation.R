@@ -13,9 +13,10 @@ pops <- data.table()
 for (data in acsdata) {
     year <- data@endyear
     pop.total <- acsSum(data, 1, "Total")
-    pop.over9 <- acsSum(data, c(5:25, 29:49), "Over 9 years")
-    pop.1020 <- acsSum(data, c(5:8, 29:32), "10 to 20 years")	
-    pop.over20 <- acsSum(data, c(9:25, 33:49), "Over 20 years") 
+    pop.over9 <- acsSum(data, c(5:25, 29:49), "10 years and over")
+    pop.1020 <- acsSum(data, c(5:8, 29:32), "10 to 20 years")	  
+    pop.over20 <- acsSum(data, c(9:25, 33:49), "21 years and over")     
+    pop.1017 <- acsSum(data, c(5:6, 29:30), "10 to 17 years")	
     pop.1824 <- acsSum(data, c(7:10, 31:34), "18 to 24 years") 
     
     datafips <- data.table(fips = getACSFips(data))
@@ -27,6 +28,7 @@ for (data in acsdata) {
         estimate(pop.over9), 
         estimate(pop.1020),
         estimate(pop.over20),
+        estimate(pop.1017),        
         estimate(pop.1824)
     )
     
@@ -48,6 +50,7 @@ for (data in acsdata) {
         standard.error(pop.over9) * 1.645, 
         standard.error(pop.1020) * 1.645,
         standard.error(pop.over20) * 1.645,
+        standard.error(pop.1017) * 1.645,        
         standard.error(pop.1824) * 1.645
     )
     

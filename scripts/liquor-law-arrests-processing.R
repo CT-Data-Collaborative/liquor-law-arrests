@@ -75,129 +75,99 @@ ll_arrests_fips <- ll_arrests_fips %>%
 ll_arrests_fips <- unique(ll_arrests_fips)
 
 # Assign age group flags (one age may belong to mutliple groups)
-ll_arrests_fips$`Over 9 years flag` <- "TRUE"
+ll_arrests_fips$`10 years and over flag` <- "TRUE"
 ll_arrests_fips$`10 to 20 years flag` <- "FALSE"
-ll_arrests_fips$`Over 20 years flag` <- "FALSE"
+ll_arrests_fips$`10 to 17 years flag` <- "FALSE"
+ll_arrests_fips$`21 years and over flag` <- "FALSE"
 ll_arrests_fips$`18 to 24 years flag` <- "FALSE" 
 
 #Assign flags based on Age column
-ll_arrests_fips$`Over 9 years flag`[ll_arrests_fips$`Age` == "<10"] <- "FALSE"
+ll_arrests_fips$`10 years and over flag`[ll_arrests_fips$`Age` == "<10"] <- "FALSE"
 
 x1020 <- c("10-12", "13-14", "15", "16", "17", "18", "19", "20")
 ll_arrests_fips$`10 to 20 years flag`[ll_arrests_fips$`Age` %in% x1020] <- "TRUE"
 
+x1017 <- c("10-12", "13-14", "15", "16", "17")
+ll_arrests_fips$`10 to 17 years flag`[ll_arrests_fips$`Age` %in% x1017] <- "TRUE"
+
 over20 <- c("21", "22", "23", "24", "25-29", "30-34", "35-39", "40-44", 
             "45-49", "50-54", "55-59", "60-64", "65+")
-ll_arrests_fips$`Over 20 years flag`[ll_arrests_fips$`Age` %in% over20] <- "TRUE"
+ll_arrests_fips$`21 years and over flag`[ll_arrests_fips$`Age` %in% over20] <- "TRUE"
 
 x1824 <- c("18", '19', "20", "21", "22", "23", "24")
 ll_arrests_fips$`18 to 24 years flag`[ll_arrests_fips$`Age` %in% x1824] <- "TRUE"
 
 #Aggregate age groups based on flag
-test <- ll_arrests_fips %>% 
-  group_by(Town, Year, `Over 9 years flag`) %>% 
-  mutate(`Over 9 years` = ifelse(`Over 9 years flag` == "TRUE", sum(Value), 0))
+ll_arrests_calc <- ll_arrests_fips %>% 
+  group_by(Town, Year, `10 years and over flag`) %>% 
+  mutate(`10 years and over` = ifelse(`10 years and over flag` == "TRUE", sum(Value), 0))
 
-test <- test %>% 
+ll_arrests_calc <- ll_arrests_calc %>% 
+  group_by(Town, Year, `10 to 17 years flag`) %>% 
+  mutate(`10 to 17 years` = ifelse(`10 to 17 years flag` == "TRUE", sum(Value), 0))
+
+ll_arrests_calc <- ll_arrests_calc %>% 
   group_by(Town, Year, `10 to 20 years flag`) %>% 
   mutate(`10 to 20 years` = ifelse(`10 to 20 years flag` == "TRUE", sum(Value), 0))
 
-test <- test %>% 
-  group_by(Town, Year, `Over 20 years flag`) %>% 
-  mutate(`Over 20 years` = ifelse(`Over 20 years flag` == "TRUE", sum(Value), 0))
+ll_arrests_calc <- ll_arrests_calc %>% 
+  group_by(Town, Year, `21 years and over flag`) %>% 
+  mutate(`21 years and over` = ifelse(`21 years and over flag` == "TRUE", sum(Value), 0))
 
-test <- test %>% 
+ll_arrests_calc <- ll_arrests_calc %>% 
   group_by(Town, Year, `18 to 24 years flag`) %>% 
   mutate(`18 to 24 years` = ifelse(`18 to 24 years flag` == "TRUE", sum(Value), 0))
 
 #Create total column
-test <- test %>% 
+ll_arrests_calc <- ll_arrests_calc %>% 
   group_by(Town, Year) %>% 
   mutate(Total = sum(Value))
 
 #Complete df with all totals
-ll_arrests_totals <- test %>% 
+ll_arrests_totals <- ll_arrests_calc %>% 
   group_by(Town, Year, FIPS) %>% 
-  summarise(`Over 9 years` = max(`Over 9 years`), 
-         `10 to 20 years` = max(`10 to 20 years`), 
-         `Over 20 years` = max(`Over 20 years`), 
-         `18 to 24 years` = max(`18 to 24 years`), 
-         `Total` = max(Total))
+  summarise(`10 years and over` = max(`10 years and over`), 
+            `10 to 20 years` = max(`10 to 20 years`), 
+            `10 to 17 years` = max(`10 to 17 years`), 
+            `21 years and over` = max(`21 years and over`), 
+            `18 to 24 years` = max(`18 to 24 years`), 
+            `Total` = max(Total))
             
 ##########################################################################################################
 #Create CT values for 2015 (2015 file does not have CT level values)
-CT_2015 <- ll_arrests_fips[ll_arrests_fips$Year == "2015",]
+CT_2015 <- ll_arrests_calc[ll_arrests_calc$Year == "2015",]
 
-CT_2015 <- as.data.frame(CT_2015)
-
-total_2015 <- CT_2015 %>% 
+#Add up all totals
+CT_2015_calc <- CT_2015 %>% 
   group_by(Age) %>% 
-  summarise(Value = sum(Value))
+  summarise(`10 years and over` = sum(`10 years and over`), 
+            `10 to 20 years` = sum(`10 to 20 years`),             
+            `10 to 17 years` = sum(`10 to 17 years`), 
+            `21 years and over` = sum(`21 years and over`), 
+            `18 to 24 years` = sum(`18 to 24 years`), 
+            `Total` = sum(Total))
 
-# Assign age group flags (one age may belong to mutliple groups)
-total_2015$`Over 9 years flag` <- "TRUE"
-total_2015$`10 to 20 years flag` <- "FALSE"
-total_2015$`Over 20 years flag` <- "FALSE"
-total_2015$`18 to 24 years flag` <- "FALSE" 
-
-#Assign flags based on Age column
-total_2015$`Over 9 years flag`[total_2015$`Age` == "<10"] <- "FALSE"
-
-x1020 <- c("10-12", "13-14", "15", "16", "17", "18", "19", "20")
-total_2015$`10 to 20 years flag`[total_2015$`Age` %in% x1020] <- "TRUE"
-
-over20 <- c("21", "22", "23", "24", "25-29", "30-34", "35-39", "40-44", 
-            "45-49", "50-54", "55-59", "60-64", "65+")
-total_2015$`Over 20 years flag`[total_2015$`Age` %in% over20] <- "TRUE"
-
-x1824 <- c("18", '19', "20", "21", "22", "23", "24")
-total_2015$`18 to 24 years flag`[total_2015$`Age` %in% x1824] <- "TRUE"
-
-#Aggregate age groups based on flag
-total_2015_test <- total_2015 %>% 
-  group_by(`Over 9 years flag`) %>% 
-  mutate(`Over 9 years` = ifelse(`Over 9 years flag` == "TRUE", sum(Value), 0))
-
-total_2015_test <- total_2015_test %>% 
-  group_by(`10 to 20 years flag`) %>% 
-  mutate(`10 to 20 years` = ifelse(`10 to 20 years flag` == "TRUE", sum(Value), 0))
-
-total_2015_test <- total_2015_test %>% 
-  group_by(`Over 20 years flag`) %>% 
-  mutate(`Over 20 years` = ifelse(`Over 20 years flag` == "TRUE", sum(Value), 0))
-
-total_2015_test <- total_2015_test %>% 
-  group_by(`18 to 24 years flag`) %>% 
-  mutate(`18 to 24 years` = ifelse(`18 to 24 years flag` == "TRUE", sum(Value), 0))
-
-total_2015_test <- as.data.frame(total_2015_test)
-
-#Create total column
-total_2015_test <- total_2015_test %>% 
-  mutate(Total = sum(Value))
-
-total_2015_test <- as.data.frame(total_2015_test)
-
-#CT df with all totals
-total_2015_test <- total_2015_test %>% 
-  summarise(`Over 9 years` = max(`Over 9 years`), 
-            `10 to 20 years` = max(`10 to 20 years`), 
-            `Over 20 years` = max(`Over 20 years`), 
+CT_2015_final <- CT_2015_calc %>% 
+  group_by() %>% 
+  summarise(`10 years and over` = max(`10 years and over`), 
+            `10 to 17 years` = max(`10 to 17 years`), 
+            `10 to 20 years` = max(`10 to 20 years`),             
+            `21 years and over` = max(`21 years and over`), 
             `18 to 24 years` = max(`18 to 24 years`), 
             `Total` = max(Total))
 
 #Create columns
-total_2015_test$Town <- "Connecticut"
-total_2015_test$FIPS <- "09"
-total_2015_test$Year <- 2015
+CT_2015_final$Town <- "Connecticut"
+CT_2015_final$FIPS <- "09"
+CT_2015_final$Year <- 2015
 
 ll_arrests_totals <- as.data.frame(ll_arrests_totals)
 
 #Merge CT 2015 with rest of data
-ll_arrests_totals <- rbind(ll_arrests_totals, total_2015_test)
+ll_arrests_totals <- rbind(ll_arrests_totals, CT_2015_final)
 
 #convert wide to long
-ll_arrests_totals_long <- gather(ll_arrests_totals, `Age Range`, Value, 4:8, factor_key=TRUE)
+ll_arrests_totals <- gather(ll_arrests_totals, `Age Range`, Value, 4:9, factor_key=TRUE)
 ####################################################################################################
 
 ## read population data for denominators in rate calculations
@@ -221,7 +191,7 @@ calcMOE <- function(x, y, moex, moey) {
 
 pops$FIPS <- gsub("^", "0", pops$FIPS)
 
-percents <- merge(ll_arrests_totals_long, pops, by = c("Year", "Age Range", "FIPS"))
+percents <- merge(ll_arrests_totals, pops, by = c("Year", "Age Range", "FIPS"))
 
 #Rates are calculated per 10000
 percents <- percents %>% 
@@ -239,30 +209,23 @@ nulls <- c("Value", "Pop", "MOE")
 percents[nulls] <- NULL
 
 # melt percents
-percents <- melt(
-  percents,
-  id.vars = c("Town", "FIPS", "Year", "Age Range", "Measure Type"),
-  variable.name = "Variable",
-  variable.factor = F,
-  value.name = "Value",
-  value.factor = F
-)
+percents <- gather(percents, Variable, Value, 7:8, factor_key=F)
 
 percents$Variable <- as.character(percents$Variable)
 
 ## FINAL STEPS
 # add extra data
-ll_arrests_totals_long$`Measure Type` <- "Number"
-ll_arrests_totals_long$Variable <- "Liquor Law Arrests"
+ll_arrests_totals$`Measure Type` <- "Number"
+ll_arrests_totals$Variable <- "Liquor Law Arrests"
 
 percents <- as.data.frame(percents)
-ll_arrests_totals_long <- as.data.frame(ll_arrests_totals_long)
+ll_arrests_totals <- as.data.frame(ll_arrests_totals)
 
 # combine number and rate measures into one dataset
-ll_arrests_complete <- rbind(ll_arrests_totals_long, percents)
+ll_arrests_complete <- rbind(ll_arrests_totals, percents)
 
 #Assign factors for sorting
-ll_arrests_complete$`Age Range` <- factor(ll_arrests_complete$`Age Range`, levels = c("Total", "Over 9 years", "10 to 20 years", "18 to 24 years", "Over 20 years"))
+ll_arrests_complete$`Age Range` <- factor(ll_arrests_complete$`Age Range`, levels = c("Total", "10 years and over", "10 to 17 years", "10 to 20 years", "18 to 24 years", "21 years and over"))
 
 # Order and sort columns
 ll_arrests_complete <- ll_arrests_complete %>% 
