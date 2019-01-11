@@ -1,4 +1,6 @@
 library(dplyr)
+library(devtools)
+load_all('../datapkg')
 library(datapkg)
 library(tidyr)
 
@@ -209,7 +211,19 @@ nulls <- c("Value", "Pop", "MOE")
 percents[nulls] <- NULL
 
 # melt percents
-percents <- gather(percents, Variable, Value, 7:8, factor_key=F)
+#percents <- gather(percents, Variable, Value, 7:8, factor_key=F)
+
+
+# melt percents
+percents <- melt(
+  percents,
+  id.vars = c("Town", "FIPS", "Year", "Age Range", "Measure Type"),
+  variable.name = "Variable",
+  variable.factor = F,
+  value.name = "Value",
+  value.factor = F
+)
+
 
 percents$Variable <- as.character(percents$Variable)
 
@@ -235,7 +249,7 @@ ll_arrests_complete <- ll_arrests_complete %>%
 # Write to File
 write.table(
   ll_arrests_complete,
-  file.path(getwd(), "data", "liquor-law-arrests_2015.csv"),
+  file.path(getwd(), "data", "liquor-law-arrests_2016.csv"),
   sep = ",",
   row.names = F,
   na = "-9999"
